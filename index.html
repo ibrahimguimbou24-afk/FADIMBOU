@@ -1,0 +1,225 @@
+<!-- FADIMBOU STUDIO Boutique - Fully Mobile Responsive with Sidebar Cart, Product Zoom, and About Link -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FADIMBOU STUDIO</title>
+  <style>
+    :root{--bg:#fdfdfd;--text:#222;--muted:#777;--accent:#27ae60;--black:#000}
+    *{box-sizing:border-box}
+    body{font-family:'Helvetica Neue', Arial, sans-serif;background:var(--bg);margin:0;padding:0;color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:filter 0.3s;}
+    a{color:inherit;text-decoration:none}
+
+    header{width:100%;background:#fff;position:fixed;top:0;left:0;z-index:120;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;gap:12px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{height:60px;width:auto;object-fit:contain} /* MODIFIABLE: Mettre votre logo ici et voir toute l'image 0000 */
+    .brand h1{font-size:32px;margin:0;font-weight:400;letter-spacing:1px;font-family:'Arial', sans-serif; font-style:italic;} /* MODIFIABLE: Nom de votre marque, style moderne 0000 */
+
+    nav a{margin-left:20px;color:var(--text);font-size:14px;}
+
+    main{display:flex;gap:20px;margin-top:100px;padding:20px}
+    #products{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;transition:filter 0.3s}
+    .product{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.06);display:flex;flex-direction:column;cursor:pointer;transition:transform 0.3s, z-index 0.3s;position:relative;}
+    .product img{width:100%;height:250px;object-fit:contain} /* MODIFIABLE: Image du produit 0000 */
+    .product .card-body{padding:12px;display:flex;flex-direction:column;gap:8px;justify-content:flex-end} /* Bouton Ajouter descendu en bas */
+    .product h2{font-size:15px;margin:0} /* MODIFIABLE: Nom du produit 0000 */
+    .price{font-size:14px;color:var(--muted)}
+    .old-price{color:#b0b0b0;text-decoration:line-through;margin-right:8px} /* MODIFIABLE: Ancien prix 0000 */
+
+    .actions{display:flex;justify-content:center;margin-top:auto}
+    .addBtn{background:var(--black);color:#fff;border:none;padding:10px 0;font-size:14px;border-radius:6px;cursor:pointer;transition:transform 0.2s;width:80%;margin:0 auto} /* Centré et allongé */
+    .addBtn:hover{transform:scale(1.05)}
+
+    .orderBtn{background:var(--accent);color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:14px;transition:transform 0.2s}
+    .orderBtn:hover{transform:scale(1.05)}
+
+    .soldout{color:red;font-weight:bold; text-align:center; display:block;}
+
+    #cartSidebar{position:fixed;right:18px;top:80px;width:320px;max-height:calc(100vh - 120px);background:#fff;padding:20px;border-radius:12px;box-shadow:-6px 10px 30px rgba(0,0,0,0.08);transform:translateX(105%);transition:transform .35s cubic-bezier(.25,.8,.25,1);z-index:130;border:none} /* Pas de bordure */
+    #cartSidebar.show{transform:translateX(0);}
+    #cartSidebar h2{margin:0 0 10px}
+    #cartItems{display:flex;flex-direction:column;gap:10px;max-height:50vh;overflow:auto}
+    .cart-item{display:flex;justify-content:space-between;align-items:center;font-size:14px;border:none}
+    #closeSidebar{position:absolute;right:10px;top:8px;background:none;border:none;border-radius:50%;font-size:18px;cursor:pointer;padding:4px;}
+
+    #cartFloating{display:none;position:fixed;right:18px;bottom:18px;width:56px;height:56px;border-radius:50%;background:#fff;border:1px solid rgba(0,0,0,0.1);color:var(--black);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:140;cursor:pointer;transition:transform 0.2s;font-size:28px}
+    #cartFloating.shake{animation:shake 0.3s linear}
+
+    .zoomed{position:absolute;top:15%;left:15%;width:50%;height:50%;z-index:200;transform:scale(1);transition:transform 0.3s;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.3);background:#fff;} /* Image zoom plus long mais pas trop grand 0000 */
+    .blurred{filter:blur(5px);transition:filter 0.3s;}
+    .zoomClose{position:absolute;top:10px;right:10px;background:#fff;border:none;border-radius:50%;font-size:20px;padding:4px;cursor:pointer;z-index:210;}
+
+    @keyframes shake{0%{transform:translateX(0);}25%{transform:translateX(-3px);}50%{transform:translateX(3px);}75%{transform:translateX(-3px);}100%{transform:translateX(0);}}
+
+    footer{background:#000;color:#fff;text-align:center;padding:18px;margin-top:auto}
+
+    @media (max-width:1100px){#products{grid-template-columns:repeat(2,1fr)}#cartSidebar{right:12px;width:300px}}
+    @media (max-width:720px){main{padding:12px}#products{grid-template-columns:1fr;gap:14px}header{padding:12px}.brand h1{font-size:20px}.product img{height:200px;object-fit:contain}#cartSidebar{left:0;right:0;bottom:0;top:auto;width:100%;max-height:60vh;border-radius:12px 12px 0 0;transform:translateY(105%)}#cartSidebar.show{transform:translateY(0)}#closeSidebar{right:12px;top:6px}#cartFloating{display:flex}}
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <img src="images/logo.JPEG" alt="FADIMBOU STUDIO Logo"> <!-- MODIFIABLE: votre logo 0000 -->
+      <h1>FADIMBOU STUDIO </h1> <!-- MODIFIABLE: nom de la marque 0000 -->
+    </div>
+    <nav>
+      <a href="#about">À propos</a> <!-- Nouveau lien vers la section À propos -->
+    </nav>
+    <button id="cartToggle" aria-label="Ouvrir le panier" style="position:relative;">
+      <span id="cartBadge" style="position:absolute; top:-6px; right:-6px; background:red; color:white; font-size:11px; padding:2px 6px; border-radius:50%; display:none; z-index:200;">0</span>
+      🛒
+    </button>
+  </header>
+
+  <main>
+    <section id="products" aria-live="polite"></section> <!-- 1111produit: Ajouter ici les nouveaux produits 0000 -->
+  </main>
+
+  <section id="about" style="padding:40px 20px;background:#f5f5f5;margin-top:20px;text-align:center;">
+    <h2>À propos de FADIMBOU STUDIO</h2>
+    <p>FADIMBOU STUDIO est spécialisé dans la vente de vêtements pièce unique. Chaque création est soigneusement confectionnée pour offrir style et originalité à nos clients.</p>
+  </section>
+
+  <aside id="cartSidebar" role="dialog" aria-label="Panier">
+    <button id="closeSidebar">&times;</button>
+    <h2>Panier</h2>
+    <div id="cartItems"></div>
+    <p>Total: <span id="total">0</span> FCFA</p>
+    <a id="whatsappLink" href="#" target="_blank"><button class="orderBtn">Commander sur WhatsApp</button></a>
+  </aside>
+  <button id="cartFloating" aria-label="Ouvrir le panier mobile">🛒</button>
+
+  <footer>&copy; 2024 FADIMBOU STUDIO. Tous droits réservés.</footer>
+
+  <audio id="cartSound" src="https://www.myinstants.com/media/sounds/cash.mp3" preload="auto"></audio>
+
+  <script>
+    const products=[
+      {id:1,name:"T-Shirt Noir",oldPrice:18000,price:15000,soldout:false,image:"images/produit1.JPG"},
+      {id:2,name:"Chemise Unique",oldPrice:22000,price:20000,soldout:false,image:"images/produit2.JPG"},
+      {id:3,name:"Pantalon Créateur",oldPrice:20000,price:18000,soldout:false,image:"images/produit3.JPG"},
+      {id:4,name:"Robe Chic",oldPrice:25000,price:22000,soldout:false,image:"images/produit2.JPG"},
+      {id:5,name:"Veste Élégante",oldPrice:30000,price:27000,soldout:false,image:"images/produit5.JPEG"},
+      {id:6,name:"Jean Créatif",oldPrice:20000,price:18000,soldout:false,image:"images/produit4.JPEG"}
+    ]; <!-- 1111produit: Ajouter ou modifier les produits ici 0000 -->
+
+    let cartTotal=0, cart=[];
+    const container=document.getElementById("products"),
+          cartContainer=document.getElementById("cartItems"),
+          cartSidebar=document.getElementById("cartSidebar"),
+          cartToggle=document.getElementById("cartToggle"),
+          closeSidebar=document.getElementById("closeSidebar"),
+          cartFloating=document.getElementById("cartFloating"),
+          whatsappLink=document.getElementById("whatsappLink"),
+          cartSound=document.getElementById("cartSound");
+
+    function renderProducts(){
+      container.innerHTML='';
+      products.forEach(p=>{
+        const html=`<article class='product' data-id='${p.id}'>
+          <img src='${p.image}' alt='${p.name}' /> <!-- 0000 -->
+          <div class='card-body'>
+            <h2>${p.name}</h2> <!-- 0000 -->
+            <div style='display:flex;align-items:center;justify-content:space-between'>
+              <p class='price'><span class='old-price'>${p.oldPrice} FCFA</span><strong>${p.price} FCFA</strong></p> <!-- 0000 -->
+            </div>
+            <div class='actions'>${p.soldout?'<span class="soldout">SOLD OUT</span>':`<button class='addBtn' data-add='${p.id}'>Ajouter</button>`}</div>
+          </div>
+        </article>`;
+        container.insertAdjacentHTML('beforeend',html);
+      });
+      document.querySelectorAll('.product').forEach(prod=>{
+        prod.addEventListener('click',()=>{
+          if(prod.classList.contains('zoomed')) return;
+          document.querySelectorAll('.product').forEach(p=>p.classList.remove('zoomed'));
+          document.querySelectorAll('.product').forEach(p=>p.classList.add('blurred'));
+          prod.classList.remove('blurred');
+          prod.classList.add('zoomed'); /* 0000 */
+
+          let closeBtn=prod.querySelector('.zoomClose');
+          if(!closeBtn){
+            closeBtn=document.createElement('button');
+            closeBtn.innerHTML='&times;';
+            closeBtn.className='zoomClose';
+            closeBtn.onclick=(e)=>{
+              e.stopPropagation();
+              prod.classList.remove('zoomed');
+              document.querySelectorAll('.product').forEach(p=>p.classList.remove('blurred'));
+              closeBtn.remove();
+            };
+            prod.appendChild(closeBtn);
+          }
+        });
+      });
+      document.querySelectorAll('[data-add]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation(); addToCart(Number(e.currentTarget.dataset.add));}));
+    }
+
+    function renderCart(){
+      cartContainer.innerHTML='';
+      cart.forEach(item=>{
+        const el=document.createElement('div');
+        el.className='cart-item';
+        el.innerHTML=`<span>${item.name}</span><span>${item.price} FCFA <button class='addBtn' data-remove='${item.id}'>&times;</button></span>`;
+        cartContainer.appendChild(el);
+      });
+      document.querySelectorAll('[data-remove]').forEach(btn=>btn.addEventListener('click',e=>removeFromCart(Number(e.currentTarget.dataset.remove))));
+    }
+
+    function updateWhatsapp(){
+      whatsappLink.href=`https://wa.me/22665412478?text=Je veux commander pour ${cartTotal} FCFA`;
+    }
+
+    function updateBadge(){
+      const b=document.getElementById('cartBadge');
+      b.innerText=cart.length;
+      b.style.display=cart.length>0?'block':'none';
+    }
+
+    function addToCart(id){
+      const p=products.find(x=>x.id===id);
+      if(!p||p.soldout)return;
+      cart.push({...p});
+      cartTotal+=p.price;
+      p.soldout=true;
+      renderProducts();
+      renderCart();
+      document.getElementById('total').innerText=cartTotal;
+      updateWhatsapp();
+      cartSidebar.classList.add('show');
+      cartFloating.classList.add('shake');
+      cartSound.play();
+      updateBadge();
+      document.body.style.filter='none';
+      setTimeout(()=>{cartFloating.classList.remove('shake')},300);
+    }
+
+    function removeFromCart(id){
+      const index=cart.findIndex(x=>x.id===id);
+      if(index===-1)return;
+      cartTotal-=cart[index].price;
+      const prod=products.find(x=>x.id===id);
+      if(prod)prod.soldout=false;
+      cart.splice(index,1);
+      renderProducts();
+      renderCart();
+      document.getElementById('total').innerText=cartTotal;
+      updateWhatsapp();
+      updateBadge();
+      if(cart.length===0)document.body.style.filter='none';
+    }
+
+    cartToggle.addEventListener('click',()=>cartSidebar.classList.toggle('show'));
+    cartFloating.addEventListener('click',()=>cartSidebar.classList.toggle('show'));
+    closeSidebar.addEventListener('click',()=>{cartSidebar.classList.remove('show');document.body.style.filter='none';});
+
+    renderProducts();
+    function checkMobileBtn(){cartFloating.style.display=window.innerWidth<=720?'flex':'none';}
+    checkMobileBtn();
+    window.addEventListener('resize',checkMobileBtn);
+  </script>
+
+</body>
+</html>
